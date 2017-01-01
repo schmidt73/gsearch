@@ -1,6 +1,8 @@
 /Makefile
 src/Makefile
 tests/Makefile
+*/.deps
+
 
 autom4te.cache/
 config.log
