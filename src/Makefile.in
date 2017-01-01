@@ -252,12 +252,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = --pedantic -Wall -std=c99 
+gsearch_SOURCES = gsearch.c
+
+# Compiler Flags
 
 # Setting up with libCURL
-gsearch_CFLAGS = `pkg-config libcurl --cflags --libs`
-gsearch_LDFLAGS = `pkg-config libcurl --cflags --libs`
-gsearch_SOURCES = gsearch.c
+gsearch_CFLAGS = --pedantic -Wall -std=c99 `pkg-config libcurl \
+	--cflags`
+gsearch_LDFLAGS = `pkg-config libcurl --libs`
 all: all-am
 
 .SUFFIXES:

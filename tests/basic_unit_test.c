@@ -1,12 +1,11 @@
 #include <stdio.h>
-#include "../src/gsearch.c"
 #include "minunit.h"
 
 int tests_run = 0;
  
 static char * test_square() 
 {
-        mu_assert("100 == 10 * 10", square(10) == 100);
+        mu_assert("100 == 10 * 10", 10 * 10 == 100);
         return 0;
 }
 
@@ -26,6 +25,6 @@ int main() {
         }
 
         fprintf(stderr, "Tests run: %d\n", tests_run);
-                              
+                                                              
         return result != 0;
 }
