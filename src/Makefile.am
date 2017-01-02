@@ -1,5 +1,5 @@
 bin_PROGRAMS = gsearch
-gsearch_SOURCES = gsearch.c
+gsearch_SOURCES = gsearch.c options.c settings.c
 
 # Compiler Flags
 gsearch_CFLAGS = --pedantic -Wall -std=c99 
