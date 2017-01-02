@@ -1,18 +1,20 @@
 #include <unistd.h>
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "settings.h"
 #include "options.h"
 
-static char* optstring = "s:n:N:l:c:t:d:";
+static char* optstring = "hs:n:N:l:c:t:d:";
 
 static struct option long_opts[] = {
         {"search", required_argument, NULL, 's'},
-        {"num", required_argument, NULL, 'n'},
-        {"startnum", required_argument, NULL, 'N'},
+        {"numresults", required_argument, NULL, 'n'},
+        {"startresult", required_argument, NULL, 'N'},
         {"lang", required_argument, NULL, 'l'},
         {"country", required_argument, NULL, 'c'},
         {"time", required_argument, NULL, 't'},
@@ -48,22 +50,26 @@ char* valid_countries[] = {
         "EH", "YE", "ZM", 
 };
 
-char* valid_languages[] = {
+char* valid_langs[] = {
         "ar", "hy", "be", "bg", "ca", "hr", "cs", "da", "nl", "en",
         "eo", "et", "tl", "fi", "fr", "de", "el", "iw", "hu", "is",
         "id", "it", "ja", "ko", "lv", "lt", "no", "fa", "pl", "pt",
         "ro", "ru", "sr", "sk", "sl", "es", "sv", "th", "tr", "uk",
         "vi", "zh-CN", "zh-TW",
-}
+};
+
+char* valid_times[] = {
+        "h", "d", "w", "m", "y",
+};
 
 /*
  * Helper function to check if a string is in an array of strings.
  *
  * Returns 1 if string is found. 0 otherwise.
  */
-static int is_str_in_array(char* str, char* str_array[], int array_len)
+static int str_is_in_array(char* str, char* str_array[], size_t array_len)
 {
-        for (int i = 0; i < array_len; i++) {
+        for (unsigned i = 0; i < array_len; i++) {
                 if (strcmp(str, str_array[i]) == 0) {
                         return 1;
                 }
@@ -72,11 +78,41 @@ static int is_str_in_array(char* str, char* str_array[], int array_len)
         return 0;
 }
 
+static void set_lang(char* oarg)
+{
+        size_t len = sizeof(valid_langs) / sizeof(valid_langs[0]); 
+        if (str_is_in_array(oarg, valid_langs, len)) {
+                settings.lang = oarg;          
+        } else {
+                print_usage();
+        }
+}
+
+static void set_country(char* oarg)
+{
+        size_t len = sizeof(valid_countries) / sizeof(valid_countries[0]); 
+        if (str_is_in_array(oarg, valid_countries, len)) {
+                settings.country = oarg;          
+        } else {
+                print_usage();
+        }
+}
+
+static void set_time(char* oarg)
+{
+        size_t len = sizeof(valid_times) / sizeof(valid_times[0]); 
+        if (str_is_in_array(oarg, valid_times, len)) {
+                settings.time = oarg;          
+        } else {
+                print_usage();
+        }
+}
+
 static void set_num_results(char* oarg)
 {
-        long val = strtol(oarg);
+        long val = strtol(oarg, NULL, 10);
 
-        if (errno == EINVAL || errno == ERANGE)
+        if (errno == EINVAL || errno == ERANGE || val <= 0)
         {
                 print_usage();
         }
@@ -84,16 +120,16 @@ static void set_num_results(char* oarg)
         settings.num_results = val;
 }
 
-static void set_start_num(char* oarg)
+static void set_start_result(char* oarg)
 {
-        long val = strtol(oarg);
+        long val = strtol(oarg, NULL, 10);
 
-        if (errno == EINVAL || errno == ERANGE)
+        if (errno == EINVAL || errno == ERANGE || val < 0)
         {
                 print_usage();
         }
 
-        settings.start_num = val;
+        settings.start_result = val;
 }
 
 static void set_search_string(char* oarg)
@@ -114,50 +150,54 @@ static void set_display_mode(char* oarg)
 
 static void parse_long_opts(const char* name, char* oarg)
 {
+        if (strcmp("searchintitle", name) == 0) {
+                settings.search_in_title = 1;
+        }
 }
 
 void parse_arguments(int argc, char* argv[])
 {
         int option, long_index = 0;
 
-        while((option = getopt_long(argc, argv, optstring, 
-                                    long_opts, &long_index)) >= 0)
-        {
+        while ((option = getopt_long(argc, argv, optstring, 
+                                    long_opts, &long_index)) >= 0) {
                 switch (option) {
+                        case 0:
+                                parse_long_opts(long_opts[long_index].name,
+                                                optarg);
+                                break;
                         case 's':
                                 set_search_string(optarg);
                                 break;
                         case 'n':
-                                set_num_result(optarg);
+                                set_num_results(optarg);
                                 break;
                         case 'N':
-                                set_start_num(optarg);
+                                set_start_result(optarg);
                                 break;
                         case 'l':
+                                set_lang(optarg);
                                 break;
                         case 'c':
+                                set_country(optarg);
                                 break;
                         case 't':
+                                set_time(optarg);
                                 break;
                         case 'd':
                                 set_display_mode(optarg);
-                                break;
-                        case '0':
-                                parse_long_opts(long_opts[long_index].name,
-                                                optarg);
                                 break;
                         case '?':
                         case 'h':
                         default:
                                 print_usage();
                                 break;
-                }
+                       }
         }
 }
 
 void print_usage()
 {
-        fprintf(stderr, "Invalid usage.");
+        fprintf(stderr, "Invalid usage.\n");
         exit(EXIT_FAILURE);
-
 }
