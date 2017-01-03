@@ -9,11 +9,12 @@ gsearch is a utility to bring google search to the shell.
 * It can be used to scrape through search results progrmatically.
 * Users can combine gsearch with other unix tools for some interesting results (like downloading the first result that matches a certain regular expression with ack and wget). 
 
-gsearch is currently in developement for an alpha release. Once that is done I will work on adding new features such as possibly regex support.
+gsearch is currently in developement for an alpha release.
 
 ## How to use it?
 
 The best way to learn something is through examples. Here are a few with a decsription of each above.
+
 
 To search the string "Donald Trump" and print out the first 100 results in table view:
 
@@ -35,6 +36,7 @@ To restrict search results to the past week:
 
     gsearch -s "Donald Trump" -n 100 -t w
  
+
 Now those are just simple commands, if we chain them with other unix commands we get some interesting results.
 
 The following downloads the first article on Donald Trump from CNN to your current directory:
