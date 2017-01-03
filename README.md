@@ -4,7 +4,7 @@ gsearch is a utility to bring google search to the shell.
 
 ## What's the purpose of gsearch?
 
-* It allows users to search from the shell.
+* It allows users to search from the shell, bending google search to their will.
 * Users can use it to match searches through regex and other filters.
 * It can be used to scrape through search results progrmatically.
 * Users can combine gsearch with other unix tools for some interesting results (like downloading the first result that matches a certain regular expression with ack and wget). 
