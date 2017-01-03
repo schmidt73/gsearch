@@ -38,7 +38,10 @@ To restrict search results to the past week:
 Now those are just simple commands, if we chain them with other unix commands we get some interesting results.
 
 The following downloads the first article on Donald Trump from CNN to your current directory:
+
+```
     wget $(gsearch -s "Donald Trump site: cnn"" -n 10 --url-only | head -3)
+```
 
 As you can see, we can start chaining commands together to do pretty cool things. Hopefully some of you have better imaginations than I do.
 
