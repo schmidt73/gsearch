@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "../src/settings.h"
@@ -26,14 +27,15 @@ static char * set_display_mode_test()
         return 0;
 }
 
-static char * set_multiple_flags_test() 
+static char * all_flags_test() 
 {
         optind = 1;
         char* argv[] = {
                         "gsearch", "--displaymode", "list", 
                         "-s", "test_string",
                         "--numresults", "45", "-N", "62",
-                        "--searchintitle"
+                        "--searchintitle", "-c", "AF",
+                        "-l", "en", "-t", "m",
                        };
 
         int argc = sizeof(argv) / sizeof(argv[0]);
@@ -43,7 +45,7 @@ static char * set_multiple_flags_test()
                    settings.display_mode == LIST_MODE);
 
         mu_assert("settings.search_string != \"test_string\"",
-                  strcmp(settings.search_string, "test_string") == 0);
+                   strcmp(settings.search_string, "test_string") == 0);
 
         mu_assert("settings.num_results != 45", settings.num_results == 45);
 
@@ -53,14 +55,22 @@ static char * set_multiple_flags_test()
         mu_assert("settings.search_in_title != 1", 
                    settings.search_in_title == 1);
 
+        mu_assert("settings.country != 'AF'",
+                   strcmp(settings.country, "AF") == 0);
+
+        mu_assert("settings.lang != 'en'",
+                   strcmp(settings.lang, "en") == 0);
+
+        mu_assert("settings.time != 'm'",
+                   strcmp(settings.time, "m") == 0);
+
         return 0;
 }
-
 
 static char * all_tests() 
 {
         mu_run_test(set_display_mode_test);
-        mu_run_test(set_multiple_flags_test);
+        mu_run_test(all_flags_test);
         return 0;
 }
 

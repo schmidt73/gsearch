@@ -9,7 +9,7 @@
 #include "settings.h"
 #include "options.h"
 
-static char* optstring = "hs:n:N:l:c:t:d:";
+static char* optstring = ":hs:n:N:l:c:t:d:";
 
 static struct option long_opts[] = {
         {"search", required_argument, NULL, 's'},
@@ -62,6 +62,59 @@ char* valid_times[] = {
         "h", "d", "w", "m", "y",
 };
 
+
+static void missing_option(int option)
+{
+        fprintf(stderr, "Missing argument for option: '-%c'\n", option);
+        fprintf(stderr, "Run \"gsearch -h\" for more help.\n");
+        exit(EXIT_FAILURE);
+}
+
+static void invalid_option(int option)
+{
+        fprintf(stderr, "Unknown argument: '-%c'\n", option);
+        fprintf(stderr, "Run \"gsearch -h\" for more help.\n");
+        exit(EXIT_FAILURE);
+}
+
+static void print_usage()
+{
+        fprintf(stderr, "gsearch - google search for the shell\n");
+        fprintf(stderr, 
+        "Usage: "
+        "gsearch -s \"search_string\" [-n][-c][-d][-t][...]\n\n"
+
+        "Options:\n"
+        "   -s --search <query>  - Sets the search query\n"
+        "                          Check out Google support for all the"
+        " available search\n"
+        "                          operators\n\n"
+        
+        "   -n --num <num>       - Sets the number of search results (de"
+        "fault 10)\n"
+
+        "   -N --startnum <num>  - Sets the result number to start at (d"
+        "efault 0)\n"
+
+        "   -d --display <arg>   - Sets the display mode of program's out"
+        "put to list or \n"
+        "                          table mode\n\n"
+        
+        "Filtering options (all of the following options filter the"
+        " results):\n"
+
+        "   -l --lang <arg>      - Filter results to specified language\n"
+        "   -c --country <arg>   - Filter results to specified country\n"
+        "   -t --time <arg>      - Filter results to specified time\n"
+        "   --searchintitle      - Filter results to only those with que"
+        "ries matching\n"
+        "                          the title\n"
+        );
+
+
+        exit(EXIT_FAILURE);
+}
+
 /*
  * Helper function to check if a string is in an array of strings.
  *
@@ -78,65 +131,98 @@ static int str_is_in_array(char* str, char* str_array[], size_t array_len)
         return 0;
 }
 
+/* 
+ * Sets user specified language.
+ *
+ * If language is invalid, prints error and terminates program.
+ */
 static void set_lang(char* oarg)
 {
         size_t len = sizeof(valid_langs) / sizeof(valid_langs[0]); 
         if (str_is_in_array(oarg, valid_langs, len)) {
                 settings.lang = oarg;          
         } else {
-                print_usage();
+                fprintf(stderr, 
+                        "Invalid language.\nExample format \"en\"\n");
+                exit(EXIT_FAILURE);
         }
 }
 
+/* 
+ * Sets user specified country.
+ *
+ * If country is invalid, prints error and terminates program.
+ */
 static void set_country(char* oarg)
 {
         size_t len = sizeof(valid_countries) / sizeof(valid_countries[0]); 
         if (str_is_in_array(oarg, valid_countries, len)) {
                 settings.country = oarg;          
         } else {
-                print_usage();
+                fprintf(stderr, 
+                        "Invalid country.\nExample format \"US\"\n");
+                exit(EXIT_FAILURE);
         }
 }
 
+/* 
+ * Sets user specified time.
+ *
+ * If time is invalid, prints error and terminates program.
+ */
 static void set_time(char* oarg)
 {
         size_t len = sizeof(valid_times) / sizeof(valid_times[0]); 
         if (str_is_in_array(oarg, valid_times, len)) {
                 settings.time = oarg;          
         } else {
-                print_usage();
+                fprintf(stderr, 
+                        "Invalid time.\nAvailable times: h, d, w, m, y\n");
+                exit(EXIT_FAILURE);
         }
 }
 
+/* 
+ * Sets user specified number of results.
+ *
+ * If number of results is invalid, prints error message and aborts.
+ */
 static void set_num_results(char* oarg)
 {
         long val = strtol(oarg, NULL, 10);
 
         if (errno == EINVAL || errno == ERANGE || val <= 0)
         {
-                print_usage();
+                fprintf(stderr, "Invalid number of results.\n");
+                exit(EXIT_FAILURE);
         }
 
         settings.num_results = val;
 }
 
+/* 
+ * Sets user specified start result.
+ *
+ * If start result is invalid, prints error message and aborts.
+ */
 static void set_start_result(char* oarg)
 {
         long val = strtol(oarg, NULL, 10);
 
         if (errno == EINVAL || errno == ERANGE || val < 0)
         {
-                print_usage();
+                fprintf(stderr, "Invalid starting result.\n");
+                exit(EXIT_FAILURE);
         }
 
         settings.start_result = val;
 }
 
-static void set_search_string(char* oarg)
-{
-        settings.search_string = oarg;
-}
-
+/* 
+ * Sets user specified display mode.
+ *
+ * If display mode is invalid, prints error message and aborts.
+ */
 static void set_display_mode(char* oarg)
 {
         if (strcmp("list", oarg) == 0) {
@@ -144,8 +230,20 @@ static void set_display_mode(char* oarg)
         } else if (strcmp("table", oarg) == 0) {
                 settings.display_mode = TABLE_MODE;
         } else {
-                print_usage();
+                 fprintf(stderr, 
+                        "Invalid display mode.\n"
+                        "Available modes: list or table\n");
+                exit(EXIT_FAILURE);
+
         }
+}
+
+/*
+ * Sets user specified search string.
+ */
+static void set_search_string(char* oarg)
+{
+        settings.search_string = oarg;
 }
 
 static void parse_long_opts(const char* name, char* oarg)
@@ -158,7 +256,9 @@ static void parse_long_opts(const char* name, char* oarg)
 void parse_arguments(int argc, char* argv[])
 {
         int option, long_index = 0;
+        int search_set = 0;
 
+        opterr = 0;
         while ((option = getopt_long(argc, argv, optstring, 
                                     long_opts, &long_index)) >= 0) {
                 switch (option) {
@@ -168,6 +268,7 @@ void parse_arguments(int argc, char* argv[])
                                 break;
                         case 's':
                                 set_search_string(optarg);
+                                search_set = 1;
                                 break;
                         case 'n':
                                 set_num_results(optarg);
@@ -187,17 +288,23 @@ void parse_arguments(int argc, char* argv[])
                         case 'd':
                                 set_display_mode(optarg);
                                 break;
-                        case '?':
                         case 'h':
-                        default:
                                 print_usage();
+                                break;
+                        case ':':
+                                missing_option(optopt);
+                                break;
+                        case '?':
+                                invalid_option(optopt);
+                                break;
+                        default:
+                                invalid_option(option);
                                 break;
                        }
         }
+
+        if (!search_set) {
+                print_usage();
+        }
 }
 
-void print_usage()
-{
-        fprintf(stderr, "Invalid usage.\n");
-        exit(EXIT_FAILURE);
-}
