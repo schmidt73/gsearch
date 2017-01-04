@@ -9,3 +9,14 @@ config.log
 config.status
 *.DS_STORE
 
+*.o
+
+tests/options_test
+tests/options_test.log
+tests/options_test.trs
+test-suite.log
+
+src/gsearch
+autoscan.log
+.dirstamp
+*.swp
