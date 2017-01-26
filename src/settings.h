@@ -11,8 +11,8 @@ typedef struct gsearch_settings {
         int start_result; /* The result number to start at */
 
         /* Restricts search results to a certain country, lang, and time */
-        char* country; /* country code ex. countryUS*/
-        char* lang; /* language code ex. lang_en for english */  
+        char* country; /* country code ex. US*/
+        char* lang; /* language code ex. en for english */  
         char* time; /* time code ex. d for the past day */
         
         /* 

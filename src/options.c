@@ -13,13 +13,13 @@ static char* optstring = ":hs:n:N:l:c:t:d:";
 
 static struct option long_opts[] = {
         {"search", required_argument, NULL, 's'},
-        {"numresults", required_argument, NULL, 'n'},
+        {"num", required_argument, NULL, 'n'},
         {"startresult", required_argument, NULL, 'N'},
         {"lang", required_argument, NULL, 'l'},
         {"country", required_argument, NULL, 'c'},
         {"time", required_argument, NULL, 't'},
         {"searchintitle", no_argument, NULL, 0},
-        {"displaymode", required_argument, NULL, 'd'},
+        {"display", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
 };
 

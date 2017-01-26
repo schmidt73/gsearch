@@ -11,7 +11,7 @@ int tests_run = 0;
 static char * set_display_mode_test() 
 {
         optind = 1;
-        char* argv[] = {"gsearch", "-d", "list"};
+        char* argv[] = {"gsearch", "-d", "list", "-s", "placeholder"};
         int argc = sizeof(argv) / sizeof(argv[0]);
         parse_arguments(argc, argv);
 
@@ -31,9 +31,9 @@ static char * all_flags_test()
 {
         optind = 1;
         char* argv[] = {
-                        "gsearch", "--displaymode", "list", 
+                        "gsearch", "--display", "list", 
                         "-s", "test_string",
-                        "--numresults", "45", "-N", "62",
+                        "--num", "45", "-N", "62",
                         "--searchintitle", "-c", "AF",
                         "-l", "en", "-t", "m",
                        };
