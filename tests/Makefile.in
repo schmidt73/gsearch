@@ -85,7 +85,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = options_test$(EXEEXT)
+check_PROGRAMS = options_test$(EXEEXT) builder_test$(EXEEXT)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -96,6 +96,10 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__dirstamp = $(am__leading_dot)dirstamp
+am_builder_test_OBJECTS = builder_test.$(OBJEXT) \
+	../src/options.$(OBJEXT) ../src/settings.$(OBJEXT)
+builder_test_OBJECTS = $(am_builder_test_OBJECTS)
+builder_test_LDADD = $(LDADD)
 am_options_test_OBJECTS = options_test.$(OBJEXT) \
 	../src/options.$(OBJEXT) ../src/settings.$(OBJEXT)
 options_test_OBJECTS = $(am_options_test_OBJECTS)
@@ -128,8 +132,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(options_test_SOURCES)
-DIST_SOURCES = $(options_test_SOURCES)
+SOURCES = $(builder_test_SOURCES) $(options_test_SOURCES)
+DIST_SOURCES = $(builder_test_SOURCES) $(options_test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -456,6 +460,7 @@ AM_CFLAGS = --pedantic -Wall -std=c99
 
 # Sources for each test
 options_test_SOURCES = options_test.c ../src/options.c ../src/settings.c
+builder_test_SOURCES = builder_test.c ../src/options.c ../src/settings.c 
 TESTS = $(check_PROGRAMS)
 all: all-am
 
@@ -504,6 +509,10 @@ clean-checkPROGRAMS:
 ../src/settings.$(OBJEXT): ../src/$(am__dirstamp) \
 	../src/$(DEPDIR)/$(am__dirstamp)
 
+builder_test$(EXEEXT): $(builder_test_OBJECTS) $(builder_test_DEPENDENCIES) $(EXTRA_builder_test_DEPENDENCIES) 
+	@rm -f builder_test$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(builder_test_OBJECTS) $(builder_test_LDADD) $(LIBS)
+
 options_test$(EXEEXT): $(options_test_OBJECTS) $(options_test_DEPENDENCIES) $(EXTRA_options_test_DEPENDENCIES) 
 	@rm -f options_test$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(options_test_OBJECTS) $(options_test_LDADD) $(LIBS)
@@ -517,6 +526,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/settings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/builder_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options_test.Po@am__quote@
 
 .c.o:
@@ -731,6 +741,13 @@ recheck: all $(check_PROGRAMS)
 options_test.log: options_test$(EXEEXT)
 	@p='options_test$(EXEEXT)'; \
 	b='options_test'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+builder_test.log: builder_test$(EXEEXT)
+	@p='builder_test$(EXEEXT)'; \
+	b='builder_test'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

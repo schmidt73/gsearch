@@ -1,8 +1,7 @@
 #ifndef BUILDER_H
 #define BUILDER_H
 
-#ifndef BUILDER_H
-#define BUILDER_H
+#include "settings.h"
 
 /*
  * A structure containing the url to make the request to
