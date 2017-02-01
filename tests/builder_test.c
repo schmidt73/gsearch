@@ -15,11 +15,12 @@ static char* multiple_settings_test()
         settings.country = "US";
         settings.lang = "en";
         settings.time = "d";
+        settings.start_result = 50;
 
         gsearch_request request = create_gsearch_request(&settings);
-        mu_assert("query_string != '#q=Test&cr=US&lr=en&as_qdr=d'", 
+        mu_assert("query_string != '#q=Test&cr=US&lr=en&as_qdr=d&start=50'", 
                   strcmp(request->query_string, 
-                         "#q=Test&cr=US&lr=en&as_qdr=d") == 0);
+                         "#q=Test&cr=US&lr=en&as_qdr=d&start=50") == 0);
         free_gsearch_request(&request);
         return 0;
 }

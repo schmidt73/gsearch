@@ -35,6 +35,25 @@ struct parameter {
 /*
  * Rules to build parameters.
  */
+
+static char* build_start_result(const gsearch_settings* settings_p)
+{
+        if (settings_p->start_result < 1) {
+                return NULL;
+        }
+
+        int len = snprintf(NULL, 0, "start=%i", settings_p->start_result) 
+                  + 1;
+
+        char* start_result = malloc(len);
+        if (start_result == NULL) {
+                return NULL;
+        }
+
+        snprintf(start_result, len, "start=%i", settings_p->start_result); 
+        return start_result;
+}
+
 static char* build_search_string(const gsearch_settings* settings_p)
 {
         if (settings_p->search_string == NULL) {
@@ -115,6 +134,7 @@ static struct parameter parameters[] = {
         {"country", OPTIONAL, build_country},
         {"lang", OPTIONAL, build_lang},
         {"time", OPTIONAL, build_time},
+        {"start_result", OPTIONAL, build_start_result},
 };
 
 static void free_str_array(char* array[], size_t len)
@@ -187,7 +207,6 @@ gsearch_request create_gsearch_request(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        request->num_results = settings_p->num_results;
         request->url = REQUEST_URL;
         request->query_string = build_query_string(built_params, num_params);
 

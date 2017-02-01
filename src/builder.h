@@ -5,7 +5,7 @@
 
 /*
  * A structure containing the url to make the request to
- * along with the query string and the desired number of results.
+ * along with the query string.
  *
  * An example structure looks like the following:
  *
@@ -18,8 +18,6 @@
 typedef struct gsearch_request {
         char* url;
         char* query_string;
-
-        int num_results;
 } * gsearch_request;
 
 /* 
