@@ -1,0 +1,5 @@
+OPTIONS TESTS PASSED
+Tests run: 3
+
+query = #q=Test string
+PASS builder_test (exit status: 0)

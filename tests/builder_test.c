@@ -9,23 +9,45 @@
 
 int tests_run = 0;
 
+static char* multiple_settings_test()
+{
+        settings.search_string = "Test";
+        settings.country = "US";
+        settings.lang = "en";
+        settings.time = "d";
+
+        gsearch_request request = create_gsearch_request(&settings);
+        mu_assert("query_string != '#q=Test&cr=US&lr=en&as_qdr=d'", 
+                  strcmp(request->query_string, 
+                         "#q=Test&cr=US&lr=en&as_qdr=d") == 0);
+        free_gsearch_request(&request);
+        return 0;
+}
+
 static char* build_search_string_test()
 {
         settings.search_string = "Test";
         char* output = build_search_string(&settings);
-        mu_assert("built_search_string != '#q=Test&'",
-                  strcmp(output, "#q=Test&") == 0);
+        mu_assert("built_search_string != '#q=Test'",
+                  strcmp(output, "#q=Test") == 0);
+        free(output);
         return 0;
 }
- 
+
 static char* search_string_test()
 {
         settings.search_string = "Test string";
         settings.num_results = 20;
 
         gsearch_request request = create_gsearch_request(&settings);
-        mu_assert("query_string != '#q=Test string&'", 
-                  strcmp(request->query_string, "#q=Test string&") == 0);
+
+        if (request == NULL ) {
+                mu_assert("request == NULL", 0);
+        }
+
+        fprintf(stdout, "query = %s\n", request->query_string);
+        mu_assert("query_string != '#q=Test string'", 
+                  strcmp(request->query_string, "#q=Test string") == 0);
         free_gsearch_request(&request);
 
         return 0;
@@ -35,6 +57,7 @@ static char* all_tests()
 {
         mu_run_test(build_search_string_test);
         mu_run_test(search_string_test);
+        mu_run_test(multiple_settings_test);
         return 0;
 }
 
