@@ -17,11 +17,11 @@ static char* multiple_settings_test()
         settings.time = "d";
         settings.start_result = 50;
 
-        gsearch_request request = create_gsearch_request(&settings);
+        g_request request = create_request(&settings);
         mu_assert("query_string != '#q=Test&cr=US&lr=en&as_qdr=d&start=50'", 
                   strcmp(request->query_string, 
                          "#q=Test&cr=US&lr=en&as_qdr=d&start=50") == 0);
-        free_gsearch_request(&request);
+        free_request(&request);
         return 0;
 }
 
@@ -40,7 +40,7 @@ static char* search_string_test()
         settings.search_string = "Test string";
         settings.num_results = 20;
 
-        gsearch_request request = create_gsearch_request(&settings);
+        g_request request = create_request(&settings);
 
         if (request == NULL ) {
                 mu_assert("request == NULL", 0);
@@ -49,7 +49,7 @@ static char* search_string_test()
         fprintf(stdout, "query = %s\n", request->query_string);
         mu_assert("query_string != '#q=Test string'", 
                   strcmp(request->query_string, "#q=Test string") == 0);
-        free_gsearch_request(&request);
+        free_request(&request);
 
         return 0;
 }

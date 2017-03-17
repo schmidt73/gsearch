@@ -2,7 +2,7 @@
 #include "settings.h"
 
 /* Initializes default settings */
-gsearch_settings settings = {
+g_settings settings = {
         NULL, 
 
         10,

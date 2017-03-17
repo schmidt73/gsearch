@@ -100,7 +100,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_gsearch_OBJECTS = gsearch-gsearch.$(OBJEXT) \
 	gsearch-options.$(OBJEXT) gsearch-settings.$(OBJEXT) \
-	gsearch-builder.$(OBJEXT)
+	gsearch-builder.$(OBJEXT) gsearch-error.$(OBJEXT)
 gsearch_OBJECTS = $(am_gsearch_OBJECTS)
 gsearch_LDADD = $(LDADD)
 gsearch_LINK = $(CCLD) $(gsearch_CFLAGS) $(CFLAGS) $(gsearch_LDFLAGS) \
@@ -254,7 +254,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-gsearch_SOURCES = gsearch.c options.c settings.c builder.c
+gsearch_SOURCES = gsearch.c options.c settings.c builder.c error.c
 
 # Compiler Flags
 
@@ -349,6 +349,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsearch-builder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsearch-error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsearch-gsearch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsearch-options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsearch-settings.Po@am__quote@
@@ -424,6 +425,20 @@ gsearch-builder.obj: builder.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='builder.c' object='gsearch-builder.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gsearch_CFLAGS) $(CFLAGS) -c -o gsearch-builder.obj `if test -f 'builder.c'; then $(CYGPATH_W) 'builder.c'; else $(CYGPATH_W) '$(srcdir)/builder.c'; fi`
+
+gsearch-error.o: error.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gsearch_CFLAGS) $(CFLAGS) -MT gsearch-error.o -MD -MP -MF $(DEPDIR)/gsearch-error.Tpo -c -o gsearch-error.o `test -f 'error.c' || echo '$(srcdir)/'`error.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gsearch-error.Tpo $(DEPDIR)/gsearch-error.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='error.c' object='gsearch-error.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gsearch_CFLAGS) $(CFLAGS) -c -o gsearch-error.o `test -f 'error.c' || echo '$(srcdir)/'`error.c
+
+gsearch-error.obj: error.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gsearch_CFLAGS) $(CFLAGS) -MT gsearch-error.obj -MD -MP -MF $(DEPDIR)/gsearch-error.Tpo -c -o gsearch-error.obj `if test -f 'error.c'; then $(CYGPATH_W) 'error.c'; else $(CYGPATH_W) '$(srcdir)/error.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gsearch-error.Tpo $(DEPDIR)/gsearch-error.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='error.c' object='gsearch-error.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gsearch_CFLAGS) $(CFLAGS) -c -o gsearch-error.obj `if test -f 'error.c'; then $(CYGPATH_W) 'error.c'; else $(CYGPATH_W) '$(srcdir)/error.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

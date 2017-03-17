@@ -4,7 +4,7 @@
 #define TABLE_MODE 0
 #define LIST_MODE 1
 
-typedef struct gsearch_settings {
+typedef struct g_settings {
         char* search_string; /* The string to put into the search query */
 
         int num_results; /* The number of results to display */
@@ -23,8 +23,8 @@ typedef struct gsearch_settings {
         
         /* Sets the display mode of the results (LIST or TABLE) */
         int display_mode;
-} gsearch_settings;
+} g_settings;
 
-extern gsearch_settings settings;
+extern g_settings settings;
 
 #endif

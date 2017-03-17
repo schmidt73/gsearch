@@ -10,6 +10,12 @@
 #define REQUIRED 1
 #define OPTIONAL 0
 
+struct settings_closure {
+        const g_settings* settings;
+        int start_result;
+        int page_size;
+};
+
 /* 
  * Defines a structure called parameters that defines one parameter of the
  * search query.
@@ -29,20 +35,39 @@ struct parameter {
         char* name;
         int required;
 
-        char* (*build)(const gsearch_settings*);
+        char* (*build)(struct settings_closure*);
 };
 
 /*
  * Rules to build parameters.
  */
 
-static char* build_start_result(const gsearch_settings* settings_p)
+#define DEFAULT_NUM 10
+#define MAX_NUM 99
+
+static char* build_page_size(struct settings_closure* closure)
 {
-        if (settings_p->start_result < 1) {
+        if (closure->page_size < 0) closure->page_size = 0;
+        if (closure->page_size > MAX_NUM) closure->page_size = MAX_NUM;
+
+        int len = snprintf(NULL, 0, "num=%i", closure->page_size) 
+                  + 1;
+
+        char* page_size = malloc(len);
+        if (page_size == NULL) {
                 return NULL;
         }
 
-        int len = snprintf(NULL, 0, "start=%i", settings_p->start_result) 
+        snprintf(page_size, len, "num=%i", closure->page_size); 
+        return page_size;
+}
+
+
+static char* build_start_result(struct settings_closure* closure)
+{
+        if (closure->settings->start_result < 0) closure->start_result = 0;
+
+        int len = snprintf(NULL, 0, "start=%i", closure->settings->start_result) 
                   + 1;
 
         char* start_result = malloc(len);
@@ -50,17 +75,17 @@ static char* build_start_result(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        snprintf(start_result, len, "start=%i", settings_p->start_result); 
+        snprintf(start_result, len, "start=%i", closure->settings->start_result); 
         return start_result;
 }
 
-static char* build_search_string(const gsearch_settings* settings_p)
+static char* build_search_string(struct settings_closure* closure)
 {
-        if (settings_p->search_string == NULL) {
+        if (closure->settings->search_string == NULL) {
                 return NULL;
         }
 
-        int len = snprintf(NULL, 0, "#q=%s", settings_p->search_string) 
+        int len = snprintf(NULL, 0, "#q=%s", closure->settings->search_string) 
                   + 1;
 
         char* search_str = malloc(len);
@@ -68,17 +93,17 @@ static char* build_search_string(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        snprintf(search_str, len, "#q=%s", settings_p->search_string);
+        snprintf(search_str, len, "#q=%s", closure->settings->search_string);
         return search_str;
 }
 
-static char* build_country(const gsearch_settings* settings_p)
+static char* build_country(struct settings_closure* closure)
 {
-        if (settings_p->country == NULL) {
+        if (closure->settings->country == NULL) {
                 return NULL;
         }
 
-        int len = snprintf(NULL, 0, "cr=%s", settings_p->country)
+        int len = snprintf(NULL, 0, "cr=%s", closure->settings->country)
                   + 1;
 
         char* country = malloc(len);
@@ -86,17 +111,17 @@ static char* build_country(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        snprintf(country, len, "cr=%s", settings_p->country); 
+        snprintf(country, len, "cr=%s", closure->settings->country); 
         return country;
 }
 
-static char* build_lang(const gsearch_settings* settings_p)
+static char* build_lang(struct settings_closure* closure)
 {
-        if (settings_p->lang == NULL) {
+        if (closure->settings->lang == NULL) {
                 return NULL;
         }
 
-        int len = snprintf(NULL, 0, "lr=%s", settings_p->lang)
+        int len = snprintf(NULL, 0, "lr=%s", closure->settings->lang)
                   + 1;
 
         char* lang = malloc(len);
@@ -104,17 +129,17 @@ static char* build_lang(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        snprintf(lang, len, "lr=%s", settings_p->lang); 
+        snprintf(lang, len, "lr=%s", closure->settings->lang); 
         return lang;
 }
 
-static char* build_time(const gsearch_settings* settings_p)
+static char* build_time(struct settings_closure* closure)
 {
-        if (settings_p->time == NULL) {
+        if (closure->settings->time == NULL) {
                 return NULL;
         }
 
-        int len = snprintf(NULL, 0, "as_qdr=%s", settings_p->time)
+        int len = snprintf(NULL, 0, "as_qdr=%s", closure->settings->time)
                   + 1;
 
         char* time = malloc(len);
@@ -122,7 +147,7 @@ static char* build_time(const gsearch_settings* settings_p)
                 return NULL;
         }
 
-        snprintf(time, len, "as_qdr=%s", settings_p->time); 
+        snprintf(time, len, "as_qdr=%s", closure->settings->time); 
         return time;
 }
 
@@ -134,7 +159,8 @@ static struct parameter parameters[] = {
         {"country", OPTIONAL, build_country},
         {"lang", OPTIONAL, build_lang},
         {"time", OPTIONAL, build_time},
-        {"start_result", OPTIONAL, build_start_result},
+        {"start_result", REQUIRED, build_start_result},
+        {"page_size", REQUIRED, build_page_size}
 };
 
 static void free_str_array(char* array[], size_t len)
@@ -187,23 +213,32 @@ static char* build_query_string(char* built_params[], int num_params)
         return query_string;
 }
 
-gsearch_request create_gsearch_request(const gsearch_settings* settings_p)
+g_request create_request(const g_settings* settings_p, int start_result, 
+                         int page_size, g_error* e)
 {
+        struct settings_closure closure = {
+                settings_p,
+                start_result,
+                page_size,
+        };
+
         size_t num_params = sizeof(parameters) / sizeof(parameters[0]);
         char* built_params[num_params];
         for (unsigned i = 0; i < num_params; i++) {
-                char* built_param = parameters[i].build(settings_p);
+                char* built_param = parameters[i].build(&closure);
                 if (built_param == NULL && parameters[i].required == REQUIRED) {
                         free_str_array(built_params, num_params);
+                        *e = MISSING_REQ_PARAM;
                         return NULL;
                 }
 
                 built_params[i] = built_param;
         }
 
-        gsearch_request request = malloc(sizeof(*request));
+        g_request request = malloc(sizeof(*request));
         if (request == NULL) {
                 free_str_array(built_params, num_params);
+                *e = OUT_OF_MEMORY;
                 return NULL;
         }
 
@@ -213,13 +248,14 @@ gsearch_request create_gsearch_request(const gsearch_settings* settings_p)
         if (request->query_string == NULL) {
                 free(request);
                 free_str_array(built_params, num_params);
+                *e = BUILD_QUERY;
                 return NULL;
         }
 
         return request;
 }
 
-void free_gsearch_request(gsearch_request* request)
+void free_request(g_request* request)
 {
         if (request == NULL || *request == NULL) {
                 return;
@@ -231,6 +267,3 @@ void free_gsearch_request(gsearch_request* request)
         *request = NULL;
 }
 
-#undef REQUIRED
-#undef OPTIONAL
-#undef REQUEST_URL
